@@ -1,0 +1,19 @@
+Metadata-Version: 1.0
+Name: checkers
+Version: 0.2
+Summary: A simple program to play Checkers with two people on the same computer.
+Home-page: http://purl.oclc.org/NET/JesseW/Python
+Author: Jesse Weinstein
+Author-email: jessw@netwood.net
+License: http://www.opensource.org/licenses/mit-license.html
+Download-URL: http://purl.oclc.org/NET/JesseW/SundryStuff/checkers-0.2.zip
+Description: I made it to play out checkers problems I found.
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Games/Entertainment
+Classifier: Topic :: Games/Entertainment :: Board Games

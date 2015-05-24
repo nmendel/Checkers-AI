@@ -1,0 +1,152 @@
+--- checkers_orig.py	Fri Feb 27 22:38:54 2015
++++ checkers.py	Fri Feb 27 22:38:42 2015
+@@ -4,8 +4,11 @@
+ 
+ from Tkinter import *
+ import string
++from pprint import pprint
+ 
+-class CheckersInterface:
++NO_JUMPS = [[],[]]
++
++class CheckersInterface(object):
+     DEBUG=1
+     DEBUG_BIG_THINGS=0
+     DEBUG_PRINT_FUNCTIONS=0
+@@ -13,12 +16,12 @@
+     DELAY=0 #885=1 sec.
+     SQUARESIZE=50
+     PIECE_DIAMETER=35
+-    
++        
+     def __init__(self, master=None):
+         """This is the constructor. It includes some basic startup work that
+         would not fit anywhere else, and then it calls self.begin_new_game.
+         It does not require any variables."""
+-
++        
+         
+         self.piece_offset=(self.SQUARESIZE-self.PIECE_DIAMETER)#calulation saver
+         
+@@ -118,7 +121,10 @@
+                 else:
+                     if start==10:
+                         start=self.SQUARESIZE+10; stop=self.SQUARESIZE*8
+-            
++         
++    def updateBoard(self, coords, piece):
++        print "no board to update"
++   
+     def begin_new_game(self):
+         """This is the function that begins a new game.  It will be run whenever
+         a new game is needed.  It clears various variables, creates the pieces
+@@ -185,6 +191,10 @@
+                     self.cleanup_move(3)
+                 #whenever a move is goten, do this stuff
+                 self.cleanup_move(1)
++
++        self.endGame()
++
++    def endGame(self):
+         if self.GameDone() == 2:
+             self.c.create_text(int(self.c.cget("height"))/2, \
+                                int(self.c.cget("width"))/2,\
+@@ -199,15 +209,11 @@
+                                int(self.c.cget("width"))/2,\
+                                text="Red Won!!!", fill="red",\
+                                font=("", "20", ""), tag="win_text")
+-            #import time
+-            #start=time.time()
+-            #while start-time.time() < 3:
+-            #    self.master.update()
+ 
+-        if self.AnotherGame():
+-            self.begin_new_game()
+-        else:
+-            self.master.destroy()
++        #if self.AnotherGame():
++        #    self.begin_new_game()
++        #else:
++        self.master.destroy()
+             
+ #++++++++++++++++++++++++++++++++++++++++more detailed functions+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     def cleanup_move(self, type):
+@@ -220,7 +226,7 @@
+         if type ==2:
+             self.got_piece=0
+             self.c.itemconfig(self.piece_square,outline="black", width=1)
+-            self.jumps=[[],[]]
++            self.jumps = NO_JUMPS
+         if type ==1:
+             self.got_move=0
+             self.square=()
+@@ -274,7 +280,7 @@
+                                          self.c.itemcget(foo, "width")))
+             if self.DEBUG_BIG_THINGS:
+                 print self.history
+-            self.jumps=[[], []]
++            self.jumps = NO_JUMPS
+             if self.moving=="black":
+                 self.moving="red"
+                 self.message.config(text="Red's move!", fg="red")
+@@ -292,6 +298,8 @@
+         """This function is called when a piece is clicked on.  It sets
+         self.got_piece, and assigns the id of the piece clicked on to
+         self.piece"""
++        print event.x
++        print event.y
+         if self.DEBUG_PRINT_FUNCTIONS:
+             pass; print "got_piece_click"
+         if self.piece != None:
+@@ -413,16 +421,19 @@
+         if self.jumps[0]:
+             foo=self.pieces.keys() #ugly hack to get the other color's pieces
+             foo.remove(self.moving)
+-            
++            print self.moving
++
+             self.pieces[foo[0]].remove(self.jumps[1][self.jump_made])
+             self.c.delete(self.jumps[1][self.jump_made])
+   
+-        foo=self.c.coords(self.square) #calulation saver
++        finish = self.c.coords(self.square) #calulation saver
++
++        start = self.c.coords(self.piece_square)
+         self.c.coords(self.piece,\
+-                      foo[0]+self.piece_offset, foo[1]+self.piece_offset,\
+-                      foo[2]-self.piece_offset, foo[3]-self.piece_offset)
++                      finish[0]+self.piece_offset, finish[1]+self.piece_offset,\
++                      finish[2]-self.piece_offset, finish[3]-self.piece_offset)
++        return start, finish
+ 
+-            
+     
+     def GameDone(self):
+         """This is the win checker.  It reports 0 if the game has not ended,
+@@ -502,13 +513,15 @@
+     
+     def check_for_jumps(self):
+         """This function checks all the possible jumps for self.moving pieces"""
+-        pass
+         if self.DEBUG_PRINT_FUNCTIONS:
+             print "check_for_jumps"
++        print "check for jumps?"
+         if self.moving=="red":
+-            baz_normal=[(2*self.SQUARESIZE, 2*self.SQUARESIZE), (-2*self.SQUARESIZE, 2*self.SQUARESIZE)]
++            baz_normal=[(2*self.SQUARESIZE, 2*self.SQUARESIZE),
++                        (-2*self.SQUARESIZE, 2*self.SQUARESIZE)]
+         if self.moving=="black":
+-            baz_normal=[(2*self.SQUARESIZE, -2*self.SQUARESIZE), (-2*self.SQUARESIZE, -2*self.SQUARESIZE)]
++            baz_normal=[(2*self.SQUARESIZE, -2*self.SQUARESIZE),
++                        (-2*self.SQUARESIZE, -2*self.SQUARESIZE)]
+         baz=baz_normal
+         for piece in self.pieces[self.moving]:
+             if self.c.itemcget(piece, "outline") == "gold2":
+@@ -678,7 +691,6 @@
+         """This is a function which will remove the piece which is
+         clicked on."""
+         piece=self.c.find_overlapping(event.x, event.y, event.x, event.y)
+-        print piece
+         if len(piece) == 2 and self.c.type(piece[1]) == "oval":
+             piece=piece[1]
+             self.c.delete(piece)
